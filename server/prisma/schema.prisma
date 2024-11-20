@@ -16,12 +16,19 @@ model User {
     createdAt DateTime @default(now())
 }
 
+model Author {
+    id    String @id @default(uuid())
+    name  String
+    books Book[]
+}
+
 model Book {
     id          String   @id @default(uuid())
     title       String
     image       String
     desc        String
-    author      String   @unique
+    author      Author   @relation(fields: [authorId], references: [id])
+    authorId    String
     page        Int
     publishedAt DateTime
     createdAt   DateTime @default(now())

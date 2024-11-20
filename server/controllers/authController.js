@@ -1,20 +1,25 @@
 const { PrismaClient } = require("@prisma/client");
-const { hash, compare } = require('bcryptjs')
-const jwt  = require("jsonwebtoken")
+const { hash, compare } = require('bcryptjs');
+const jwt = require("jsonwebtoken");
+const BadRequestException = require("../exceptions/bad_request");
+const { signupSchema, loginSchema } = require("../validators/data_validator");
 
 
 prisma = new PrismaClient();
 const SECRET_KEY = process.env.JWT_SECRET;
 
 
-const signup = async (req, res) => {
-    const { email, password, name } = req.body;
+const signup = async (req, res, next) => {
+    const { email, password, name, role} = req.body;
 
     try {
+
+        signupSchema.parse({email, password, name})
+
         const existingUser = await prisma.user.findUnique({ where: { email } });
     
         if (existingUser) {
-            return res.status(400).json({ error: "Cet email est déjà utilisé" })
+            return next(new BadRequestException("L'utilisateur existe déjà"));
         }
     
         const hashedPassword = await hash(password, 10);
@@ -24,36 +29,40 @@ const signup = async (req, res) => {
                 email,
                 password: hashedPassword,
                 name,
+                role: role || 'USER'
             },
         });
     
         res.status(201).json({ message: 'Utilisateur créé avec succès' });
         
     } catch (error) {
-        res.status(500).json({error : 'Erreur lors de la création de l\'utilisateur'})
+        next(error);
     }
 }
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
     const { email, password } = req.body;
 
     try {
+
+        loginSchema.parse({email, password})
+
         const user = await prisma.user.findUnique({ where: { email } });
 
         if(!user) {
-            return res.status(400).json({error: 'Email ou mot de passe incorrect'})
+            return next(new BadRequestException("L'utilisateur inexistant"));
         }
 
         const isPasswordValid = await compare(password, user.password);
 
         if (!isPasswordValid) {
-            return res.status(400).json({error: 'Mot de passe incorrect'})
+            return next(new BadRequestException("Mot de passe incorrect"));
         }
 
-        const token = jwt.sign({userId: user.id}, SECRET_KEY, { expiresIn: '1h' })
+        const token = jwt.sign({userId: user.id, email: user.email}, SECRET_KEY, { expiresIn: '1h' })
         res.json({ message: 'Connexion réussie', token });
     } catch (error) {
-        res.status(500).json({ error: 'Erreur lors de la connexion' });
+        next(error);
     }
 }
 

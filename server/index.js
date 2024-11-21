@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const authRoute = require('./routes/authRoute');
 const userRoute = require('./routes/userRoute');
+const authorRoute = require('./routes/authorRoute');
+const bookRoute = require('./routes/bookRoute');
 const errorHandler = require('./middlewares/error');
 const securityMiddleware = require('./middlewares/security');
 const app = express();
@@ -15,6 +17,8 @@ app.use(express.json());
 //ROUTES
 app.use('/auth', authRoute);
 app.use('/user', userRoute);
+app.use('/book', bookRoute);
+app.use('/author', authorRoute);
 
 //Middlewares
 app.use(errorHandler);

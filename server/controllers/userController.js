@@ -2,7 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const { hash } = require('bcryptjs')
 const BadRequestException = require("../exceptions/bad_request");
 
-prisma = new PrismaClient
+const prisma = new PrismaClient();
 
 const getAllUsers = async (req, res, next) => {
     try {

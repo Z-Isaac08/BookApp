@@ -30,7 +30,6 @@ model Book {
     author      Author   @relation(fields: [authorId], references: [id])
     authorId    String
     page        Int
-    publishedAt DateTime
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
 }

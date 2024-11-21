@@ -5,7 +5,7 @@ const BadRequestException = require("../exceptions/bad_request");
 const { signupSchema, loginSchema } = require("../validators/data_validator");
 
 
-prisma = new PrismaClient();
+const prisma = new PrismaClient();
 const SECRET_KEY = process.env.JWT_SECRET;
 
 
@@ -33,7 +33,7 @@ const signup = async (req, res, next) => {
             },
         });
     
-        res.status(201).json({ message: 'Utilisateur créé avec succès' });
+        res.status(201).json({ message: 'Utilisateur créé avec succès', user });
         
     } catch (error) {
         next(error);
@@ -60,7 +60,7 @@ const login = async (req, res, next) => {
         }
 
         const token = jwt.sign({userId: user.id, email: user.email}, SECRET_KEY, { expiresIn: '1h' })
-        res.json({ message: 'Connexion réussie', token });
+        res.status(200).json({ message: 'Connexion réussie', token });
     } catch (error) {
         next(error);
     }

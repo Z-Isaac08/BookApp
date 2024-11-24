@@ -34,7 +34,7 @@ const createBook = async (req, res, next) => {
 
         createBookSchema.parse(req.body);
 
-        const author = await prisma.author.findMany({
+        const author = await prisma.author.findUnique({
             where: { name: authorName },
         });
 
@@ -47,7 +47,7 @@ const createBook = async (req, res, next) => {
                 title,
                 image,
                 desc,
-                authorId: author[0].id,
+                authorId: author.id,
                 page: parseInt(page, 10),
             },
         });

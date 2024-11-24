@@ -17,9 +17,11 @@ model User {
 }
 
 model Author {
-    id    String @id @default(uuid())
-    name  String
-    books Book[]
+    id         String    @id @default(uuid())
+    name       String    @unique
+    books      Book[]
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
 }
 
 model Book {
